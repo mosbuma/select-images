@@ -1,7 +1,9 @@
 "use client"
 
 import Image from "next/image";
-import ImageCarousel from './components/ImageCarousel';
+import ImageCarousel from '../components/ImageCarousel';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import SignInComponent from "../components/signin";
 
 const images = [
   "nft-0.jpg",
@@ -314,10 +316,14 @@ const images = [
 ]
 
 export default function Home() {
+  const session = useSession();
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 lg:p-24">
-      <div className="w-full h-full md:h-[70vh] lg:h-[80vh] flex items-center justify-center">
-        <ImageCarousel images={images} />
-      </div>
+      <SignInComponent />
+      {session && session.status !== "unauthenticated" &&
+        <div className="w-full h-full md:h-[70vh] lg:h-[80vh] flex items-center justify-center">
+          <ImageCarousel images={images} />
+        </div>}
     </main>);
 }
