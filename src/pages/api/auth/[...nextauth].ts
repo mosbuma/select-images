@@ -2,6 +2,7 @@
 
 import NextAuth from 'next-auth';
 import type { NextAuthOptions } from 'next-auth'
+import { users } from '../../../../users';
 
 import CredentialsProvider from 'next-auth/providers/credentials';
 
@@ -18,13 +19,6 @@ export const authOptions: NextAuthOptions = {
                 if (!credentials || !credentials.username || !credentials.password) {
                     return null;
                 }
-                // Hardcoded user list for example purposes
-                const users = [
-                    { id: '1', name: 'Marc', email: 'marcbuma@devilsshare.org', password: 'marc7878' },
-                    { id: '2', name: 'Jasper', email: 'jaspervis@devilsshare.org', password: 'jasper3667' },
-                    { id: '3', name: 'Steven', email: 'stevenrietveld@devilsshare.org', password: 'steven0729' }
-                ];
-
                 const user = users.find(user =>
                     user.email === credentials.username &&
                     user.password === credentials.password

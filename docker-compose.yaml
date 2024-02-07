@@ -6,4 +6,4 @@ services:
       - 3000:3000
     build: .   
     volumes:
-      - .:/app
+      - ./data:/app/data

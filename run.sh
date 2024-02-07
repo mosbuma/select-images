@@ -1,6 +1,17 @@
 #!/bin/sh
 export DOCKER_SCAN_SUGGEST=false
 
+#setup shared data folder
+if [ ! -d "data" ]; then
+  mkdir data
+fi
+
+if [ ! -d "data/ratings.json" ]; then
+  touch data/ratings.json
+fi
+
+chmod 777 -R data
+
 stop_timeout=10
 need_build=false
 need_start=false

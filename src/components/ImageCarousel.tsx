@@ -53,7 +53,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         });
 
         const rating = await response.json();
-        console.log(">>>>> update current rating", imageName, rating);
         setCurrentRating(rating as Rating);
     }
 
@@ -77,8 +76,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         // const data = await response.json();
         // Handle the response
     };
-
-    console.log(">>>>> currentRating", currentRating);
 
     return (
         <div className="relative w-full h-full pb-40">
