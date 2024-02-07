@@ -41,6 +41,7 @@ import withPWA from "next-pwa";
 
 const config = {
   reactStrictMode: true,
+  basePath: "",
   output: "standalone",
 };
 
