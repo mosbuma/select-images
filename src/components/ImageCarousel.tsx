@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
@@ -79,15 +80,16 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     };
 
     const src = '/nft-images/' + images[currentIndex]
-    // const img = await import(src);
 
     return (
-        <div className="relative w-full h-full pb-40">
-            <h2 className="text-4xl font-bold mb-4 text-center uppercase ">{images[currentIndex].replace(".jpg", "")}</h2>
-            <div className="flex justify-center mt-4">
+        <div className="flex flex-col items-center justify-center w-full h-full pb-40">
+            <h2 className="text-4xl font-bold mb-4 uppercase">{images[currentIndex].replace(".jpg", "")}</h2>
+
+            <div className="flex justify-center mb-2" style={{ fontSize: '2vh' }}>
                 <button
                     onClick={() => goToPrevious(totalImages)}
-                    className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20 mr-20">
+                    className="bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-1"
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
                     {"<"}
                 </button>
 
@@ -95,35 +97,41 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
                     <button
                         key={index}
                         onClick={() => jumpToImage(index)}
-                        className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20">
+                        className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-full m-1"
+                        style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
                         {index}
                     </button>
                 ))}
                 <button
                     onClick={() => goToNext(totalImages)}
-                    className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20 ml-20">
+                    className="bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-1"
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
                     {">"}
                 </button>
             </div>
-            <div className="relative w-auto h-full pl-1 pr-1">
-                <Image
+
+            <div className="w-full h-full flex items-center justify-center p-1">
+                <img
                     src={src}
                     alt={`Image ${currentIndex}`}
-                    fill={true}
-                    objectFit="contain"
+                    style={{ minWidth: '60vh', height: 'auto', maxWidth: '100%' }}
                 />
             </div>
-            <div className="flex justify-center mt-4">
+
+            <div className="flex justify-center mt-2" style={{ fontSize: '2vh' }}>
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20 ml-20 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '-')}>-</button>
 
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20 ml-20 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '0')}>-/+</button>
 
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold py-1 px-1 rounded-full m-2 text-2xl w-20 h-20 ml-20 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '+')}>+</button>
             </div>
         </div>
