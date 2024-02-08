@@ -78,7 +78,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         // Handle the response
     };
 
-    const src = '../../public/nft-images/' + images[currentIndex]
+    const src = '/nft-images/' + images[currentIndex]
     // const img = await import(src);
 
     return (
