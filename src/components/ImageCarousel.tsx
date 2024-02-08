@@ -79,7 +79,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
         // Handle the response
     };
 
-    const src = '/nft-images/' + images[currentIndex]
+    const src = '/images/nft-images/' + images[currentIndex]
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full pb-40">
