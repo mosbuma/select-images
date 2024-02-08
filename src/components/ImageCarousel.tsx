@@ -63,7 +63,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     const rateImage = async (imageName: string, rating: string) => {
         setCurrentRating(rating as Rating);
 
-        const response = await fetch('/api/rate', {
+        await fetch('/api/rate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,9 +73,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
 
         goToNext(totalImages);
 
+        // const response = 
         // const data = await response.json();
         // Handle the response
     };
+
+    const src = '../../public/nft-images/' + images[currentIndex]
+    // const img = await import(src);
 
     return (
         <div className="relative w-full h-full pb-40">
@@ -103,7 +107,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
             </div>
             <div className="relative w-auto h-full pl-1 pr-1">
                 <Image
-                    src={'/nft-images/' + images[currentIndex]}
+                    src={src}
                     alt={`Image ${currentIndex}`}
                     fill={true}
                     objectFit="contain"
