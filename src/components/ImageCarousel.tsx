@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import Image, { StaticImageData } from 'next/image';
 
 import type { Rating } from '../pages/api/rate';
-import type { NftImages } from '../assets/nftimages';
+
 interface ImageCarouselProps {
-    images: NftImages;
+    images: string[];
+    useHTMLImageElement?: boolean;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageElement = true }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [currentRating, setCurrentRating] = useState<Rating>(false);
 
@@ -58,7 +59,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
     }
 
     useEffect(() => {
-        fetchCurrentRating(images[currentIndex].name, setCurrentRating);
+        fetchCurrentRating(images[currentIndex], setCurrentRating);
     }, [currentIndex, images]);
 
     const rateImage = async (imageName: string, rating: string) => {
@@ -81,7 +82,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full pb-40">
-            <h2 className="text-4xl font-bold mb-4 uppercase">{images[currentIndex].name.replace(".jpg", "")}</h2>
+            <h2 className="text-4xl font-bold mb-4 uppercase">{images[currentIndex].replace(".jpg", "")}</h2>
 
             <div className="flex justify-center mb-2" style={{ fontSize: '2vh' }}>
                 <button
@@ -108,29 +109,40 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
                 </button>
             </div>
 
-            <div className="w-full h-full flex items-center justify-center p-1">
-                <Image
-                    src={images[currentIndex].image}
-                    alt={`Image ${currentIndex}`}
-                    style={{ minWidth: '60vh', height: 'auto', maxWidth: '100%' }}
-                />
-            </div>
+            {useHTMLImageElement === false ?
+                <div className="relative w-5/6 h-5/6 flex items-center justify-center p-1">
+                    <Image
+                        src={`/images/nft-images/${images[currentIndex]}`}
+                        alt={`showing image ${images[currentIndex]}`}
+                        layout="fill"
+                        objectFit="contain"
+                    />
+                </div> :
+                <div className="relative w-5/6 h-5/6 flex items-center justify-center p-1">
+                    <img
+                        src={`/images/nft-images/${images[currentIndex]}`}
+                        alt={`showing image ${images[currentIndex]}`}
+                        className="object-contain"
+                        style={{ width: '100%', height: '100%' }}
+                    />
+                </div>
+            }
 
             <div className="flex justify-center mt-2" style={{ fontSize: '2vh' }}>
                 <button
                     className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
-                    onClick={() => rateImage(images[currentIndex].name, '-')}>-</button>
+                    onClick={() => rateImage(images[currentIndex], '-')}>-</button>
 
                 <button
                     className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
-                    onClick={() => rateImage(images[currentIndex].name, '0')}>-/+</button>
+                    onClick={() => rateImage(images[currentIndex], '0')}>-/+</button>
 
                 <button
                     className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
-                    onClick={() => rateImage(images[currentIndex].name, '+')}>+</button>
+                    onClick={() => rateImage(images[currentIndex], '+')}>+</button>
             </div>
         </div>
     );
