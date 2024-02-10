@@ -49,8 +49,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs --chmod=777 /app/public ./public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
@@ -77,6 +76,9 @@ ENV HOSTNAME "0.0.0.0"
 #setup shared folder
 
 VOLUME /app/data
+
+RUN find . -type f -exec ls -l {} \; > /app/files.txt
+# > /data/files.txt
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
