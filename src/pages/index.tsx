@@ -16,5 +16,9 @@ export default function Home() {
         <div className="w-full h-full md:h-[70vh] lg:h-[80vh] flex items-center justify-center">
           <ImageCarousel images={nftimages} />
         </div>}
+      {session && session.status === "unauthenticated" &&
+        <div className="w-full h-full md:h-[70vh] lg:h-[80vh] flex items-center justify-center">
+          <h1>PLEASE LOG IN</h1>
+        </div>}
     </main>);
 }
