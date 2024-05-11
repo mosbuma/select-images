@@ -62,6 +62,18 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
         fetchCurrentRating(images[currentIndex], setCurrentRating);
     }, [currentIndex, images]);
 
+    // const fetchCurrentStats = async (imageName: string, setCurrentStats: Function) => {
+    //     const response = await fetch('/api/stats/?imagename=' + imageName, {
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //     });
+
+    //     const stats = await response.json();
+    //     setCurrentStats({ ...stats } as ImageStats);
+    // }
+
     const rateImage = async (imageName: string, rating: string) => {
         setCurrentRating(rating as Rating);
 
@@ -80,6 +92,15 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
         // Handle the response
     };
 
+    const step = 100
+    const buttoncounts = [];
+    for (let i = 0; i < totalImages; i += step) {
+        buttoncounts.push(i);
+    }
+    if ((totalImages - 1) % step !== 0) {
+        buttoncounts.push(totalImages - 1);
+    }
+
     return (
         <div className="flex flex-col items-center justify-center w-full h-full pb-40">
             <h2 className="text-4xl font-bold mb-4 uppercase">{images[currentIndex].replace(".jpg", "")}</h2>
@@ -92,13 +113,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
                     {"<"}
                 </button>
 
-                {[1, 50, 100, 150, 200, 250].map((index) => (
+                {buttoncounts.map((index) => (
                     <button
                         key={index}
                         onClick={() => jumpToImage(index)}
                         className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold rounded-full m-1"
                         style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
-                        {index}
+                        {index + 1}
                     </button>
                 ))}
                 <button

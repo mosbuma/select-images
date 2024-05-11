@@ -14,8 +14,8 @@ export type Ratings = {
     [email: string]: RatingsForUser;
 }
 
-const ratingsFileFolder = path.join(process.cwd(), 'data');
-const ratingsFilePath = path.join(ratingsFileFolder, 'ratings.json');
+export const ratingsFileFolder = path.join(process.cwd(), 'data');
+export const ratingsFilePath = path.join(ratingsFileFolder, 'ratings.json');
 
 export default async function handler(
     req: NextApiRequest,
