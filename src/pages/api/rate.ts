@@ -3,11 +3,26 @@ import fs from 'fs';
 import path from 'path';
 import { authOptions } from './auth/[...nextauth]'
 import { getServerSession } from "next-auth/next"
+import { getRatingStatistics } from './statistics';
 
 export type Rating = '+' | '0' | '-' | false;
 
+export type RatingInfo = {
+    user: Rating,
+    all: RatingStatistics
+}
+
 export type RatingsForUser = {
     [filename: string]: Rating;
+}
+
+export type RatingStatistics = {
+    positive: number,
+    neutral: number,
+    negative: number,
+    included: boolean,
+    totalincluded: number,
+    totalexcluded: number
 }
 
 export type Ratings = {
@@ -41,20 +56,23 @@ export default async function handler(
     }
 
     if (req.method === 'GET') {
+
+        // get statistics for the current image
+
         // Return ratings for the specific user
-        if (session.user.email in ratings) {
-            const { imagename } = req.query;
-            if (typeof imagename === 'string') {
-                if (imagename in ratings[session.user.email]) {
-                    res.status(200).json(ratings[session.user.email][imagename]);
-                } else {
-                    res.status(200).json(false);
-                }
-            } else {
-                res.status(401).json({ message: 'imagename must be a single string.' });
-            }
+        const imagename = req.query.imagename || false;
+        if (typeof imagename === 'string') {
+            const ratingStatistics = getRatingStatistics(imagename);
+
+            const userRatings = ratings[session.user.email] || [];
+            let ratinginfo: RatingInfo = {
+                user: userRatings[imagename] || false,
+                all: ratingStatistics
+            };
+            // res.status(200).json(ratings[session.user.email][imagename]);
+            res.status(200).json(ratinginfo)
         } else {
-            res.status(200).json([]);
+            res.status(401).json({ message: 'imagename must be a single string.' });
         }
     } else if (req.method === 'POST') {
         const { imageName, rating } = req.body;

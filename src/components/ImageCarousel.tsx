@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import Image, { StaticImageData } from 'next/image';
 
-import type { Rating } from '../pages/api/rate';
+import type { RatingInfo, Rating, RatingStatistics } from '../pages/api/rate';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 
 interface ImageCarouselProps {
     images: string[];
@@ -12,6 +15,7 @@ interface ImageCarouselProps {
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageElement = true }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [currentRating, setCurrentRating] = useState<Rating>(false);
+    const [currentStatistics, setCurrentStatistics] = useState<RatingStatistics | false>(false);
 
     const totalImages = images.length;
 
@@ -54,8 +58,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
             },
         });
 
-        const rating = await response.json();
-        setCurrentRating(rating as Rating);
+        const ratinginfo = await response.json();
+        // console.log("got rating info", JSON.stringify(ratinginfo, null, 2));
+        setCurrentRating((ratinginfo as RatingInfo).user);
+        setCurrentStatistics((ratinginfo as RatingInfo).all);
     }
 
     useEffect(() => {
@@ -76,6 +82,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
 
     const rateImage = async (imageName: string, rating: string) => {
         setCurrentRating(rating as Rating);
+        setCurrentStatistics((prevStats) => { return false });
 
         await fetch('/api/rate', {
             method: 'POST',
@@ -130,40 +137,74 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
                 </button>
             </div>
 
-            {useHTMLImageElement === false ?
-                <div className="relative w-5/6 h-5/6 flex items-center justify-center p-1">
+            <div className="flex-col relative w-5/6 h-5/6 flex items-center justify-center p-1">
+                {useHTMLImageElement === false ?
                     <Image
                         src={`/images/nft-images/${images[currentIndex]}`}
                         alt={`showing image ${images[currentIndex]}`}
                         layout="fill"
                         objectFit="contain"
                     />
-                </div> :
-                <div className="relative w-5/6 h-5/6 flex items-center justify-center p-1">
+                    :
                     <img
                         src={`/images/nft-images/${images[currentIndex]}`}
                         alt={`showing image ${images[currentIndex]}`}
                         className="object-contain"
                         style={{ width: '100%', height: '100%' }}
                     />
-                </div>
-            }
 
-            <div className="flex justify-center mt-2" style={{ fontSize: '2vh' }}>
+                }
+            </div>
+
+            <div className="flex flex-row relative w-5/6 h-5/6 justify-center p-1" style={{ fontSize: '2vh' }}>
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '-')}>-</button>
 
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '0')}>-/+</button>
 
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 text-2xl ml-20 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
                     onClick={() => rateImage(images[currentIndex], '+')}>+</button>
+            </div>
+
+            <div className="flex flex-row relative w-auto h-5/6 justify-center p-5 bg-yellow-200 rounded-full mt-20" style={{ fontSize: '2vh' }}>
+                {currentStatistics ?
+                    <div
+                        className={`${currentStatistics.included ? 'bg-green-500' : 'bg-red-500'} text-black font-bold rounded-full ml-2 mr-40 flex justify-center items-center`}
+                        style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                        <FontAwesomeIcon icon={currentStatistics.included ? faCheck : faTimes} />
+                    </div> : null}
+                <div
+                    className={`bg-green-500 text-black font-bold rounded-full mx-5 flex justify-center align-center`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                    {currentStatistics && currentStatistics.positive || "0"}
+                </div>
+                <div
+                    className={`bg-gray-300  text-black font-bold rounded-full mx-5 flex justify-center align-center`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                    {currentStatistics && currentStatistics.neutral || "0"}
+                </div>
+                <div
+                    className={`bg-red-500 text-black font-bold rounded-full mx-5 flex justify-center align-center`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                    {currentStatistics && currentStatistics.negative || "0"}
+                </div>
+                <div
+                    className={`bg-green-500 text-black font-bold rounded-full ml-40 mr-2 flex justify-center align-center`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                    {currentStatistics && currentStatistics.totalincluded || "0"}
+                </div>
+                <div
+                    className={`bg-red-500 text-black font-bold rounded-full mx-2 flex justify-center align-center`}
+                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
+                    {currentStatistics && currentStatistics.totalexcluded || "0"}
+                </div>
             </div>
         </div>
     );

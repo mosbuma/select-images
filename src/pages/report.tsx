@@ -2,9 +2,6 @@
 
 import { signIn, signOut, useSession } from 'next-auth/react';
 import SignInComponent from "../components/signin";
-import path from 'path';
-
-import type { Ratings, RatingsForUser } from './api/rate';
 
 export default function Home() {
     const session = useSession();
