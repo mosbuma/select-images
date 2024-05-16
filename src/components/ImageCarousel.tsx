@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image, { StaticImageData } from 'next/image';
 
-import type { RatingInfo, Rating, RatingStatistics } from '../pages/api/rate';
+import type { RatingInfo, Rating, RatingStatisticsSingle, RatingTotalCounts } from '../tools/types';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
@@ -10,12 +10,16 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons'
 interface ImageCarouselProps {
     images: string[];
     useHTMLImageElement?: boolean;
+    startImage?: string;
 }
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageElement = true }) => {
-    const [currentIndex, setCurrentIndex] = useState<number>(0);
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageElement = true, startImage }) => {
+    const [currentIndex, setCurrentIndex] = useState<number>(() => {
+        return startImage ? images.indexOf(startImage) : 0
+    });
     const [currentRating, setCurrentRating] = useState<Rating>(false);
-    const [currentStatistics, setCurrentStatistics] = useState<RatingStatistics | false>(false);
+    const [currentStatistics, setCurrentStatistics] = useState<RatingStatisticsSingle | false>(false);
+    const [totalCounts, setTotalCounts] = useState<RatingTotalCounts | false>({ included: 0, excluded: 0 });
 
     const totalImages = images.length;
 
@@ -23,9 +27,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
         setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : totalImages - 1));
     };
 
-    const goToNext = (totalImages: number) => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % totalImages);
-    };
+    const goToNext = useCallback(async (totalImages: number) => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % totalImages)
+    }, [setCurrentIndex]);
 
     const jumpToImage = (index: number) => {
         if (index >= 0 && index < totalImages) {
@@ -33,12 +37,30 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
         }
     };
 
+    const rateImage = useCallback(async (imageName: string, rating: string) => {
+        setCurrentRating(rating as Rating);
+
+        await fetch('/api/rate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ imageName, rating }),
+        });
+
+        goToNext(totalImages);
+    }, [setCurrentRating, goToNext, totalImages]);
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'ArrowLeft') {
                 goToPrevious(totalImages);
             } else if (event.key === 'ArrowRight') {
                 goToNext(totalImages);
+            } if (event.key === '1') {
+                rateImage(images[currentIndex], '-');
+            } else if (event.key === '2') {
+                rateImage(images[currentIndex], '+');
             }
         };
 
@@ -48,7 +70,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [currentIndex, totalImages]);
+    }, [images, rateImage, currentIndex, totalImages, goToNext]);
 
     const fetchCurrentRating = async (imageName: string, setCurrentRating: Function) => {
         const response = await fetch('/api/rate/?imagename=' + imageName, {
@@ -58,10 +80,11 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
             },
         });
 
-        const ratinginfo = await response.json();
+        const ratinginfo = await response.json() as RatingInfo;
         // console.log("got rating info", JSON.stringify(ratinginfo, null, 2));
-        setCurrentRating((ratinginfo as RatingInfo).user);
-        setCurrentStatistics((ratinginfo as RatingInfo).all);
+        setCurrentRating(ratinginfo.user);
+        setCurrentStatistics(ratinginfo.all);
+        setTotalCounts(ratinginfo.totalcounts);
     }
 
     useEffect(() => {
@@ -80,26 +103,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
     //     setCurrentStats({ ...stats } as ImageStats);
     // }
 
-    const rateImage = async (imageName: string, rating: string) => {
-        setCurrentRating(rating as Rating);
-        setCurrentStatistics((prevStats) => { return false });
-
-        await fetch('/api/rate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ imageName, rating }),
-        });
-
-        goToNext(totalImages);
-
-        // const response = 
-        // const data = await response.json();
-        // Handle the response
-    };
-
-    const step = 100
+    const step = 125
     const buttoncounts = [];
     for (let i = 0; i < totalImages; i += step) {
         buttoncounts.push(i);
@@ -156,20 +160,20 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
                 }
             </div>
 
-            <div className="flex flex-row relative w-5/6 h-5/6 justify-center p-1" style={{ fontSize: '2vh' }}>
+            <div className="flex flex-row relative w-5/6 h-5/6 justify-center p-1" style={{ fontSize: '4vh' }}>
                 <button
-                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
-                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}
+                    className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 justify-center align-middle ${currentRating === '-' ? 'bg-yellow-500' : ''}`}
+                    style={{ width: '8vh', height: '8vh' }}
                     onClick={() => rateImage(images[currentIndex], '-')}>-</button>
 
-                <button
+                {/* <button
                     className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '0' ? 'bg-yellow-500' : ''}`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}
-                    onClick={() => rateImage(images[currentIndex], '0')}>-/+</button>
+                    onClick={() => rateImage(images[currentIndex], '0')}>-/+</button> */}
 
                 <button
                     className={`bg-gray-300 hover:bg-gray-400 text-black font-bold rounded-full m-2 mx-10 ${currentRating === '+' ? 'bg-yellow-500' : ''}`}
-                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}
+                    style={{ width: '8vh', height: '8vh' }}
                     onClick={() => rateImage(images[currentIndex], '+')}>+</button>
             </div>
 
@@ -186,11 +190,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
                     {currentStatistics && currentStatistics.positive || "0"}
                 </div>
                 <div
-                    className={`bg-gray-300  text-black font-bold rounded-full mx-5 flex justify-center align-center`}
-                    style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
-                    {currentStatistics && currentStatistics.neutral || "0"}
-                </div>
-                <div
                     className={`bg-red-500 text-black font-bold rounded-full mx-5 flex justify-center align-center`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
                     {currentStatistics && currentStatistics.negative || "0"}
@@ -198,14 +197,21 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
                 <div
                     className={`bg-green-500 text-black font-bold rounded-full ml-40 mr-2 flex justify-center align-center`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
-                    {currentStatistics && currentStatistics.totalincluded || "0"}
+                    {totalCounts && totalCounts.included || "0"}
                 </div>
                 <div
                     className={`bg-red-500 text-black font-bold rounded-full mx-2 flex justify-center align-center`}
                     style={{ width: '5vh', height: '5vh', padding: '1vh' }}>
-                    {currentStatistics && currentStatistics.totalexcluded || "0"}
+                    {totalCounts && totalCounts.excluded || "0"}
                 </div>
+                <button
+                    className={`bg-yellow-500 hover:bg-gray-400 text-black font-bold rounded-full m-2 ml-40 mx-10 justify-center align-middle`}
+                    style={{ width: '15vw', height: '5vh' }}
+                    onClick={() => window.location.href = `/gallery/${images[currentIndex]}`}>
+                    Show Overview
+                </button>
             </div>
+
         </div>
     );
 };
