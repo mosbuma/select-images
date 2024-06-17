@@ -9,7 +9,7 @@
     "lint": "next lint",
     "clean-docker": "docker container prune && docker image prune",
     "import-images": "bash ./scripts/import-images.sh",
-    "export-imagelist": "node ./scripts/imagelist.js  > ./src/assets/nftimages.tsx && echo 'nftimages.tsx has been updated'"
+    "export-candidatelist": "node ./scripts/candidatelist.js  > ./src/assets/nftcandidates.tsx && echo 'nftcandidates.tsx has been updated'"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",

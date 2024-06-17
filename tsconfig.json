@@ -33,7 +33,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "build/types/**/*.ts",
-    "scripts/imagelist.js"
+    "scripts/candidatelist.js"
   ],
   "exclude": [
     "node_modules"

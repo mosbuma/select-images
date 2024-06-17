@@ -3,7 +3,7 @@
 import ImageCarousel from '../../components/ImageCarousel';
 import { useSession } from 'next-auth/react';
 import SignInComponent from "../../components/signin";
-import { nftimages } from "../../assets/nftimages";
+import { nftimages } from "../../assets/nftcandidates";
 import { useRouter } from 'next/router';
 
 export default function Home() {

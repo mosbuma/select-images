@@ -144,14 +144,14 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, useHTMLImageEleme
             <div className="flex-col relative w-5/6 h-5/6 flex items-center justify-center p-1">
                 {useHTMLImageElement === false ?
                     <Image
-                        src={`/images/nft-images/${images[currentIndex]}`}
+                        src={`/images/nft-candidates/${images[currentIndex]}`}
                         alt={`showing image ${images[currentIndex]}`}
                         layout="fill"
                         objectFit="contain"
                     />
                     :
                     <img
-                        src={`/images/nft-images/${images[currentIndex]}`}
+                        src={`/images/nft-candidates/${images[currentIndex]}`}
                         alt={`showing image ${images[currentIndex]}`}
                         className="object-contain"
                         style={{ width: '100%', height: '100%' }}

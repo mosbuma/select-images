@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import Image, { StaticImageData } from 'next/image';
 
-import type { RatingInfo, RatingTotalCounts, RatingStatisticsSingle, RatingStatisticsMultiple } from '../tools/types';
+import type { RatingInfo, RatingTotalCounts, RatingStatisticsSingle, RatingStatisticsMultiple, ScriptResponse } from '../tools/types';
 import RenderImage from './RenderImage';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,9 +13,10 @@ interface ImageGalleryProps {
     images: string[];
     useHTMLImageElement?: boolean;
     startImage?: string;
+    isAdmin: boolean;
 }
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement = true, startImage }) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement = true, startImage, isAdmin = false }) => {
     const [totalCounts, setTotalCounts] = useState<RatingTotalCounts | false>({ included: 0, excluded: 0 });
     const [currentStatistics, setCurrentStatistics] = useState<RatingStatisticsMultiple | false>(false);
     const [currentTab, setCurrentTab] = useState<string>('all');
@@ -59,10 +60,24 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement
         setTotalCounts(ratinginfo.totalcounts);
     }
 
+    const fetchCurrentScript = async (): Promise<ScriptResponse> => {
+        const response = await fetch('/api/script/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+
+        console.log(response);
+        const script = await response.json();
+        console.log(script);
+        return script;
+    }
+
     useEffect(() => {
         fetchCurrentTotalCounts();
     }, []);
-
 
     const renderImages = () => {
         let filteredImages = images;
@@ -70,6 +85,12 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement
             filteredImages = images.filter(image => currentStatistics && currentStatistics[image].included);
         } else if (currentTab === 'excluded') {
             filteredImages = images.filter(image => currentStatistics && !currentStatistics[image].included);
+        }
+
+        if (filteredImages.length === 0) {
+            return <div className="flex flex-row justify-center text-center w-full " style={{ fontSize: '2vh' }}>
+                No candidate images available
+            </div>
         }
 
         const gallery = filteredImages.map(image => {
@@ -121,6 +142,32 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement
         } else {
             console.warn("scrollToImage - Image not found", imageName);
         }
+    }
+
+    const downloadScript = async () => {
+        const result = await fetchCurrentScript();
+        console.log(result);
+
+        // Create a Blob from the script content
+        const blob = new Blob([result.script], { type: 'text/plain' });
+
+        // Create a link element
+        const link = document.createElement('a');
+
+        // Set the download attribute with a filename
+        link.download = 'script.txt';
+
+        // Create a URL for the Blob and set it as the href attribute
+        link.href = URL.createObjectURL(blob);
+
+        // Append the link to the body (this step might not be necessary in modern browsers)
+        document.body.appendChild(link);
+
+        // Programmatically click the link to trigger the download
+        link.click();
+
+        // Clean up and remove the link
+        link.parentNode && link.parentNode.removeChild(link);
     }
 
     const renderTabHeader = () => {
@@ -175,6 +222,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, useHTMLImageElement
                         onClick={() => window.location.href = '/rate'}>
                         Rate Images
                     </button>
+                    {isAdmin ? <button
+                        className={`bg-yellow-500 hover:bg-gray-400 text-black font-bold rounded m-2 mx-10 justify-center align-middle`}
+                        style={{ width: '150px', height: '50px' }}
+                        onClick={() => {
+                            downloadScript()
+                        }}>
+                        Export Script
+                    </button> : null}
                 </div>
             </div>
         );

@@ -27,7 +27,7 @@ const RenderImage: React.FC<RenderImageProps> = ({ image, statistics, useHTMLIma
                         : null}
                 {useHTMLImageElement === false ?
                     <Image
-                        src={`/images/nft-images/${image}`}
+                        src={`/images/nft-candidates/${image}`}
                         alt={`Showing image ${image}`}
                         layout="fill"
                         objectFit="contain"
@@ -36,7 +36,7 @@ const RenderImage: React.FC<RenderImageProps> = ({ image, statistics, useHTMLIma
                     :
                     /* eslint-disable-next-line @next/next/no-img-element */
                     < img
-                        src={`/images/nft-images/${image}`}
+                        src={`/images/nft-candidates/${image}`}
                         alt={`Showing image ${image}`}
                         className="object-contain w-full h-full"
                         onClick={() => window.location.href = `/rate/${image}`}

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
-import { nftimages } from '../assets/nftimages';
+import { nftimages } from '../assets/nftcandidates';
 import { loadRatings } from './functions';
 
 import type { RatingTotalCounts, RatingStatisticsSingle, RatingStatisticsMultiple } from './types';

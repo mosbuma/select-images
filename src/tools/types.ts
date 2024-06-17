@@ -28,3 +28,7 @@ export type RatingTotalCounts = {
 export type RatingStatisticsMultiple = {
     [filename: string]: RatingStatisticsSingle
 }
+
+export type ScriptResponse = {
+    script: string
+}

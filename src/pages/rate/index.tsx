@@ -3,7 +3,7 @@
 import ImageCarousel from '../../components/ImageCarousel';
 import { useSession } from 'next-auth/react';
 import SignInComponent from "../../components/signin";
-import { nftimages } from "../../assets/nftimages";
+import { nftimages } from "../../assets/nftcandidates";
 
 export default function Rate() {
     const session = useSession();
